@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Filtre Gateway personnalisé de propagation d'identité — réf. <b>2.6.4</b> (Listing 2.16).
+ * Filtre Gateway personnalisé de propagation d'identité.
  *
  * <p>La validation cryptographique du JWT (signature RS256 + expiration via JWKS Keycloak)
  * est assurée en amont par le Resource Server OAuth2 (chaîne de sécurité WebFlux). Ce filtre,
@@ -28,7 +28,7 @@ import java.util.Map;
  *   <li>propager l'identité vérifiée vers le microservice aval
  *       ({@code X-User-Id}, {@code X-User-Roles}, {@code X-Tenant-Id}, {@code X-Department}) ;</li>
  *   <li><b>supprimer</b> au préalable tout en-tête d'identité fourni par le client
- *       (durcissement Zero Trust 9.5 — anti header-spoofing).</li>
+ *       (durcissement Zero Trust — anti header-spoofing).</li>
  * </ol>
  *
  * <p>On évite ainsi un second décodage redondant du token dans le même processus.

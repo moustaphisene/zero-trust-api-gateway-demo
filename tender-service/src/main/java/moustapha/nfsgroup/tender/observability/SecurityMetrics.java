@@ -5,7 +5,7 @@ import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.stereotype.Component;
 
 /**
- * Métriques de sécurité personnalisées — réf. <b>Annexe G.2</b> (Listing G.2).
+ * Métriques de sécurité personnalisées.
  * Exposées sur {@code /actuator/prometheus} pour Prometheus / Grafana.
  */
 @Component

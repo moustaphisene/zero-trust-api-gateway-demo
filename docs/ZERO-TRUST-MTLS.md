@@ -1,4 +1,4 @@
-# 🛡️ Zero Trust & mTLS (réf. 9.5)
+# 🛡️ Zero Trust & mTLS
 
 ## Principe
 
@@ -9,7 +9,7 @@ potentiellement malveillante, qu'elle vienne de l'extérieur ou de l'intérieur 
 
 ## Ce qui est implémenté dans la démo
 
-| Principe Zero Trust (Table 9.2) | Implémentation |
+| Principe Zero Trust | Implémentation |
 |---------------------------------|----------------|
 | **Vérification continue** | Le Gateway valide le JWT **et** chaque microservice le **re-valide** (signature RS256 + expiration). Un accès direct à `tender-service:8081` sans token renvoie `401`. |
 | **Moindre privilège** | RBAC (rôles composites Keycloak) + permissions fines (`tender:read/write/delete`, `user:manage`) + ABAC contextuel. |

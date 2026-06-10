@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import java.time.Instant;
 
 /**
- * Journalisation structurée des événements de sécurité — réf. <b>Annexe G.1</b> (Listing G.1).
+ * Journalisation structurée des événements de sécurité.
  *
  * <p>Émet des lignes clé=valeur sous le logger {@code SECURITY_AUDIT}, directement
  * exploitables par un SIEM (Security Information and Event Management).

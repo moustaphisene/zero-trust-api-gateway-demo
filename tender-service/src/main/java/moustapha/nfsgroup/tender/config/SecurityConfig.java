@@ -17,8 +17,8 @@ import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
 /**
  * Sécurité du tender-service (Resource Server JWT, stateless).
  *
- * <p>Réf. : 1.2.3 (en-têtes), 2.6.4 (validation JWT côté service — Zero Trust 9.5),
- * 2.4.1 (RBAC via authorities), 4.x (durcissement OWASP).
+ * <p>Couvre : en-têtes HTTP de sécurité, re-validation du JWT côté service (Zero Trust),
+ * RBAC via authorities, et durcissement OWASP.
  */
 @Configuration
 @EnableWebSecurity
@@ -32,10 +32,10 @@ public class SecurityConfig {
         MvcRequestMatcher.Builder mvc = new MvcRequestMatcher.Builder(introspector);
 
         http
-            // API stateless : pas de session, CSRF non pertinent (4.7.2).
+            // API stateless : pas de session, CSRF non pertinent.
             .csrf(csrf -> csrf.disable())
             .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            // En-têtes HTTP de sécurité (1.2.3 — Listing 1.1).
+            // En-têtes HTTP de sécurité.
             .headers(headers -> headers
                 .contentSecurityPolicy(csp -> csp.policyDirectives("default-src 'none'; frame-ancestors 'none'"))
                 .frameOptions(frame -> frame.deny())

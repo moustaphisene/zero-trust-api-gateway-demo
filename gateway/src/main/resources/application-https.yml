@@ -1,5 +1,5 @@
 # =====================================================================
-# Profil « https » du Gateway — HTTPS / TLS (réf. 1.3.2, 1.3.3, 5.2.3)
+# Profil « https » du Gateway — HTTPS / TLS
 # Activation :  SPRING_PROFILES_ACTIVE=https
 # Prérequis  :  exécuter `make certs` (génère infra/certs/keystore.p12)
 # =====================================================================

@@ -37,7 +37,7 @@
             <artifactId>spring-boot-starter-data-redis-reactive</artifactId>
         </dependency>
 
-        <!-- Observabilité : Actuator + Prometheus (Annexe G) -->
+        <!-- Observabilité : Actuator + Prometheus -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>

@@ -34,7 +34,7 @@ public class SecurityConfig {
             .csrf(ServerHttpSecurity.CsrfSpec::disable)
             // Le Gateway ne gère pas de session HTTP — chaque requête est ré-authentifiée.
             .requestCache(ServerHttpSecurity.RequestCacheSpec::disable)
-            // En-têtes de sécurité (1.2.3).
+            // En-têtes de sécurité.
             .headers(headers -> headers
                 .contentSecurityPolicy(csp -> csp.policyDirectives(
                     "default-src 'none'; frame-ancestors 'none'; base-uri 'none'"))

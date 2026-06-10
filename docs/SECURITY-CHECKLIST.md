@@ -1,4 +1,4 @@
-# ✅ Check-list de sécurité (Annexe A)
+# ✅ Check-list de sécurité
 
 État de la démo vis-à-vis des bonnes pratiques. ✔ = implémenté, ➖ = documenté/à activer en prod.
 
@@ -28,7 +28,7 @@
 - ✔ Secrets via Vault (clé AES, secret JWT)
 - ✔ Chiffrement au repos AES-256-GCM (données scellées)
 - ✔ Aucun secret en dur committé (`.gitignore`, `.env.example`)
-- ➖ Rotation dynamique des creds DB (Vault DB engine) — documentée (Listing 10.2)
+- ➖ Rotation dynamique des creds DB (Vault DB engine) — documentée
 
 ## CI/CD & exploitation
 - ✔ Pipeline DevSecOps : SAST (CodeQL), SCA (Trivy), secret-scan (Gitleaks), image-scan

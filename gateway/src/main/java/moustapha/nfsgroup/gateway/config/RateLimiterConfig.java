@@ -9,7 +9,7 @@ import reactor.core.publisher.Mono;
 import java.util.Objects;
 
 /**
- * Configuration du Rate Limiting et de la protection DDoS — réf. <b>2.6.5</b> (Listing 2.17).
+ * Configuration du Rate Limiting et de la protection DDoS.
  *
  * <p>Le {@code RequestRateLimiter} de Spring Cloud Gateway s'appuie sur Redis
  * (algorithme token-bucket distribué) et utilise un {@link KeyResolver} pour

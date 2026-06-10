@@ -86,7 +86,7 @@ Puis exécuter **dans l'ordre** :
 | `user`      | `user123`    | USER    | FINANCE      | 0                     | tenant-alpha |
 | `auditor`   | `auditor123` | AUDITOR | COMPLIANCE   | 0                     | tenant-alpha |
 
-Matrice RBAC (Table 2.4) appliquée dans `TenderController` ; politiques ABAC (2.4.2) dans
+Matrice RBAC appliquée dans `TenderController` ; politiques ABAC dans
 `AbacPermissionEvaluator` : *même département*, *montant ≤ plafond*, *heures ouvrables*.
 
 ---
@@ -101,11 +101,32 @@ make up-https     # génère le keystore auto-signé puis démarre le Gateway en
 
 ## 🧭 Où trouver quoi ?
 
-Voir **[docs/THEMES-MAPPING.md](docs/THEMES-MAPPING.md)** : chaque thème du programme est
+Voir **[docs/THEMES-MAPPING.md](docs/THEMES-MAPPING.md)** : chaque thème couvert est
 relié au fichier qui l'implémente. Voir aussi :
 - **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** — décisions d'architecture et flux ;
 - **[docs/ZERO-TRUST-MTLS.md](docs/ZERO-TRUST-MTLS.md)** — Zero Trust et activation du mTLS ;
-- **[docs/SECURITY-CHECKLIST.md](docs/SECURITY-CHECKLIST.md)** — check-list (Annexe A).
+- **[docs/SECURITY-CHECKLIST.md](docs/SECURITY-CHECKLIST.md)** — check-list de sécurité.
+
+---
+
+## 🧪 Tests automatisés
+
+```bash
+# Tests unitaires + slice MVC (rapides, sans Docker)
+mvn -pl tender-service test
+
+# + tests d'intégration Testcontainers (PostgreSQL réel) — nécessite Docker
+mvn -pl tender-service verify
+```
+
+| Type | Classe | Couvre |
+|------|--------|--------|
+| Unitaire | `AesEncryptionServiceTest` | AES-256-GCM : round-trip, IV aléatoire, détection d'altération |
+| Unitaire | `AbacPermissionEvaluatorTest` | Politiques ABAC (même département, plafond d'approbation) |
+| Slice MVC | `TenderControllerSecurityTest` | RBAC (@PreAuthorize), ABAC, BOLA — via `jwt()` simulé |
+| Intégration | `TenderPersistenceIT` | PostgreSQL réel : persistance, RBAC bout-en-bout, **AES au repos** |
+
+La CI (`.github/workflows/ci-secure.yml`) exécute `mvn verify` + SAST (CodeQL) + SCA/image-scan (Trivy) + secret-scan (Gitleaks).
 
 ---
 
