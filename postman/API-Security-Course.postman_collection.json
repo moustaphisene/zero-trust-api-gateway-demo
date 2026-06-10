@@ -1,0 +1,378 @@
+{
+  "info": {
+    "name": "API Security Course — Sécurisation des API REST (Spring Boot)",
+    "description": "Collection de démonstration : JWT/Keycloak, RBAC + ABAC, API Gateway, OWASP Top 10 API, Zero Trust, rate limiting, observabilité.\n\nPré-requis : `docker compose up` puis attendre que tous les services soient UP.\n\nOrdre conseillé : exécuter d'abord le dossier « 0. Authentification » (récupère les tokens par rôle), puis les autres dossiers.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "0. Authentification (Keycloak)",
+      "item": [
+        {
+          "name": "Token — ADMIN",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "const at = pm.response.json().access_token;",
+                  "pm.environment.set('access_token_admin', at);",
+                  "pm.environment.set('access_token', at);",
+                  "console.log('ADMIN token enregistré');"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/x-www-form-urlencoded" }],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "grant_type", "value": "password" },
+                { "key": "client_id", "value": "{{client_id}}" },
+                { "key": "client_secret", "value": "{{client_secret}}" },
+                { "key": "username", "value": "admin" },
+                { "key": "password", "value": "admin123" }
+              ]
+            },
+            "url": {
+              "raw": "{{keycloak_url}}/realms/{{realm}}/protocol/openid-connect/token",
+              "host": ["{{keycloak_url}}"],
+              "path": ["realms", "{{realm}}", "protocol", "openid-connect", "token"]
+            }
+          }
+        },
+        {
+          "name": "Token — MANAGER",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "pm.environment.set('access_token_manager', pm.response.json().access_token);",
+                  "pm.environment.set('access_token', pm.response.json().access_token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/x-www-form-urlencoded" }],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "grant_type", "value": "password" },
+                { "key": "client_id", "value": "{{client_id}}" },
+                { "key": "client_secret", "value": "{{client_secret}}" },
+                { "key": "username", "value": "manager" },
+                { "key": "password", "value": "manager123" }
+              ]
+            },
+            "url": {
+              "raw": "{{keycloak_url}}/realms/{{realm}}/protocol/openid-connect/token",
+              "host": ["{{keycloak_url}}"],
+              "path": ["realms", "{{realm}}", "protocol", "openid-connect", "token"]
+            }
+          }
+        },
+        {
+          "name": "Token — USER",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "pm.environment.set('access_token_user', pm.response.json().access_token);",
+                  "pm.environment.set('access_token', pm.response.json().access_token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/x-www-form-urlencoded" }],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "grant_type", "value": "password" },
+                { "key": "client_id", "value": "{{client_id}}" },
+                { "key": "client_secret", "value": "{{client_secret}}" },
+                { "key": "username", "value": "user" },
+                { "key": "password", "value": "user123" }
+              ]
+            },
+            "url": {
+              "raw": "{{keycloak_url}}/realms/{{realm}}/protocol/openid-connect/token",
+              "host": ["{{keycloak_url}}"],
+              "path": ["realms", "{{realm}}", "protocol", "openid-connect", "token"]
+            }
+          }
+        },
+        {
+          "name": "Token — AUDITOR",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "pm.environment.set('access_token_auditor', pm.response.json().access_token);",
+                  "pm.environment.set('access_token', pm.response.json().access_token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/x-www-form-urlencoded" }],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "grant_type", "value": "password" },
+                { "key": "client_id", "value": "{{client_id}}" },
+                { "key": "client_secret", "value": "{{client_secret}}" },
+                { "key": "username", "value": "auditor" },
+                { "key": "password", "value": "auditor123" }
+              ]
+            },
+            "url": {
+              "raw": "{{keycloak_url}}/realms/{{realm}}/protocol/openid-connect/token",
+              "host": ["{{keycloak_url}}"],
+              "path": ["realms", "{{realm}}", "protocol", "openid-connect", "token"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "1. Appels d'offres (RBAC + ABAC)",
+      "item": [
+        {
+          "name": "Lister les offres (USER)",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('200 OK', () => pm.response.to.have.status(200));", "pm.test('borné au tenant alpha', () => { const a = pm.response.json(); pm.expect(a.every(t => t.tenantId === 'tenant-alpha')).to.be.true; });"] } }],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{access_token_user}}" }],
+            "url": { "raw": "{{gateway_url}}/api/tenders", "host": ["{{gateway_url}}"], "path": ["api", "tenders"] }
+          }
+        },
+        {
+          "name": "Lire une offre (USER)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{access_token_user}}" }],
+            "url": { "raw": "{{gateway_url}}/api/tenders/1", "host": ["{{gateway_url}}"], "path": ["api", "tenders", "1"] }
+          }
+        },
+        {
+          "name": "Créer une offre (MANAGER)",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('201 Created', () => pm.response.to.have.status(201));", "pm.environment.set('created_tender_id', pm.response.json().id);"] } }],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token_manager}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"title\": \"Fourniture serveurs 2026\",\n  \"description\": \"Appel d'offres infrastructure\",\n  \"amount\": 150000,\n  \"department\": \"ENGINEERING\",\n  \"sealedBudget\": \"plafond-interne-180000\"\n}" },
+            "url": { "raw": "{{gateway_url}}/api/tenders", "host": ["{{gateway_url}}"], "path": ["api", "tenders"] }
+          }
+        },
+        {
+          "name": "Créer une offre — REFUSÉ (USER 403)",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('403 Forbidden (RBAC)', () => pm.response.to.have.status(403));"] } }],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token_user}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"title\": \"Tentative interdite\",\n  \"amount\": 1000,\n  \"department\": \"FINANCE\"\n}" },
+            "url": { "raw": "{{gateway_url}}/api/tenders", "host": ["{{gateway_url}}"], "path": ["api", "tenders"] }
+          }
+        },
+        {
+          "name": "Modifier offre — ABAC même département (MANAGER)",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('200 OK — manager ENGINEERING modifie offre ENGINEERING', () => pm.response.to.have.status(200));"] } }],
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token_manager}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"title\": \"Refonte du SI sinistres (révisé)\",\n  \"description\": \"Périmètre étendu\",\n  \"amount\": 260000,\n  \"department\": \"ENGINEERING\"\n}" },
+            "url": { "raw": "{{gateway_url}}/api/tenders/1", "host": ["{{gateway_url}}"], "path": ["api", "tenders", "1"] }
+          }
+        },
+        {
+          "name": "Modifier offre — ABAC autre département (MANAGER 403)",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('403 — offre FINANCE refusée au manager ENGINEERING (ABAC)', () => pm.response.to.have.status(403));"] } }],
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token_manager}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"title\": \"Tentative cross-département\",\n  \"amount\": 100000,\n  \"department\": \"FINANCE\"\n}" },
+            "url": { "raw": "{{gateway_url}}/api/tenders/3", "host": ["{{gateway_url}}"], "path": ["api", "tenders", "3"] }
+          }
+        },
+        {
+          "name": "Approuver offre — ABAC (MANAGER, montant ≤ plafond)",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('200 ou 403 selon heures ouvrables (ABAC contextuel)', () => pm.expect([200,403]).to.include(pm.response.code));"] } }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{access_token_manager}}" }],
+            "url": { "raw": "{{gateway_url}}/api/tenders/2/approve", "host": ["{{gateway_url}}"], "path": ["api", "tenders", "2", "approve"] }
+          }
+        },
+        {
+          "name": "Supprimer offre (ADMIN)",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('204 No Content', () => pm.response.to.have.status(204));"] } }],
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{access_token_admin}}" }],
+            "url": { "raw": "{{gateway_url}}/api/tenders/{{created_tender_id}}", "host": ["{{gateway_url}}"], "path": ["api", "tenders", "{{created_tender_id}}"] }
+          }
+        },
+        {
+          "name": "Supprimer offre — REFUSÉ (MANAGER 403)",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('403 — suppression réservée à ADMIN (RBAC)', () => pm.response.to.have.status(403));"] } }],
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{access_token_manager}}" }],
+            "url": { "raw": "{{gateway_url}}/api/tenders/1", "host": ["{{gateway_url}}"], "path": ["api", "tenders", "1"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Scénarios OWASP / Zero Trust",
+      "item": [
+        {
+          "name": "Sans token (401)",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('401 Unauthorized', () => pm.response.to.have.status(401));"] } }],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{gateway_url}}/api/tenders", "host": ["{{gateway_url}}"], "path": ["api", "tenders"] }
+          }
+        },
+        {
+          "name": "BOLA — accès cross-tenant (USER 404) [A01]",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('404 — offre d''un autre tenant invisible (BOLA)', () => pm.response.to.have.status(404));"] } }],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{access_token_user}}" }],
+            "url": { "raw": "{{gateway_url}}/api/tenders/4", "host": ["{{gateway_url}}"], "path": ["api", "tenders", "4"] }
+          }
+        },
+        {
+          "name": "Validation d'entrée invalide (MANAGER 400) [A03/A08]",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('400 Bad Request', () => pm.response.to.have.status(400));"] } }],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token_manager}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"title\": \"\",\n  \"amount\": -50,\n  \"department\": \"\"\n}" },
+            "url": { "raw": "{{gateway_url}}/api/tenders", "host": ["{{gateway_url}}"], "path": ["api", "tenders"] }
+          }
+        },
+        {
+          "name": "Header spoofing — X-User-Roles injecté (ignoré) [Zero Trust]",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Les en-têtes X-* du client sont écrasés par le Gateway', () => pm.expect([200,403,404]).to.include(pm.response.code));"] } }],
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token_user}}" },
+              { "key": "X-User-Roles", "value": "ADMIN" },
+              { "key": "X-Tenant-Id", "value": "tenant-beta" }
+            ],
+            "url": { "raw": "{{gateway_url}}/api/tenders/4", "host": ["{{gateway_url}}"], "path": ["api", "tenders", "4"] }
+          }
+        },
+        {
+          "name": "Accès direct au microservice — sans token (401) [Zero Trust]",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('401 — le microservice re-valide même hors Gateway', () => pm.response.to.have.status(401));"] } }],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{tender_direct_url}}/api/tenders", "host": ["{{tender_direct_url}}"], "path": ["api", "tenders"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Utilisateurs (RBAC user:manage)",
+      "item": [
+        {
+          "name": "Mon profil /me (USER)",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('200 OK', () => pm.response.to.have.status(200));", "pm.test('claims ABAC présents', () => pm.expect(pm.response.json()).to.have.property('department'));"] } }],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{access_token_user}}" }],
+            "url": { "raw": "{{gateway_url}}/api/users/me", "host": ["{{gateway_url}}"], "path": ["api", "users", "me"] }
+          }
+        },
+        {
+          "name": "Lister utilisateurs (ADMIN)",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('200 OK', () => pm.response.to.have.status(200));"] } }],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{access_token_admin}}" }],
+            "url": { "raw": "{{gateway_url}}/api/users", "host": ["{{gateway_url}}"], "path": ["api", "users"] }
+          }
+        },
+        {
+          "name": "Lister utilisateurs — REFUSÉ (USER 403)",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('403 — user:manage requis', () => pm.response.to.have.status(403));"] } }],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{access_token_user}}" }],
+            "url": { "raw": "{{gateway_url}}/api/users", "host": ["{{gateway_url}}"], "path": ["api", "users"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Rate limiting (2.6.5)",
+      "item": [
+        {
+          "name": "Rafale — exécuter via Runner (x30) pour déclencher 429",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('200 ou 429 (Too Many Requests)', () => pm.expect([200,429]).to.include(pm.response.code));", "if (pm.response.code === 429) console.log('Rate limit déclenché ✅');"] } }],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{access_token_user}}" }],
+            "url": { "raw": "{{gateway_url}}/api/tenders", "host": ["{{gateway_url}}"], "path": ["api", "tenders"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Observabilité (Annexe G)",
+      "item": [
+        {
+          "name": "Gateway — health",
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{gateway_url}}/actuator/health", "host": ["{{gateway_url}}"], "path": ["actuator", "health"] } }
+        },
+        {
+          "name": "Gateway — métriques Prometheus",
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{gateway_url}}/actuator/prometheus", "host": ["{{gateway_url}}"], "path": ["actuator", "prometheus"] } }
+        },
+        {
+          "name": "Tender-service — métriques de sécurité",
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{tender_direct_url}}/actuator/prometheus", "host": ["{{tender_direct_url}}"], "path": ["actuator", "prometheus"] } }
+        }
+      ]
+    }
+  ]
+}

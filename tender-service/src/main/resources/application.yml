@@ -1,0 +1,74 @@
+# =====================================================================
+# tender-service — configuration
+# Réf. : 2.6.4 (Resource Server JWT), 5.3 (AES), 10.2 (Vault), Annexe G (observabilité)
+# =====================================================================
+server:
+  port: 8081
+
+spring:
+  application:
+    name: tender-service
+
+  # --- Gestion des secrets : Spring Cloud Vault (10.2.3 — Listing 10.1) ---
+  # La clé maîtresse AES et (optionnellement) les creds DB sont servies par Vault.
+  # fail-fast=false + valeur de repli => la démo démarre même si Vault est absent.
+  config:
+    import: ${VAULT_IMPORT:optional:vault://}
+  cloud:
+    vault:
+      enabled: ${VAULT_ENABLED:true}
+      uri: ${VAULT_URI:http://localhost:8200}
+      authentication: TOKEN
+      token: ${VAULT_TOKEN:root}
+      fail-fast: false
+      kv:
+        enabled: true
+        backend: secret
+        default-context: tender-service
+
+  # --- Persistance ---
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/tender_db}
+    username: ${DB_USERNAME:tender_user}
+    password: ${DB_PASSWORD:tender_pass}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: false
+    open-in-view: false
+
+  # --- Resource Server : re-validation du JWT Keycloak (Zero Trust 9.5) ---
+  # Validation JWKS interne (signature RS256 + expiration) — voir note du gateway.
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: ${KEYCLOAK_JWK_SET_URI:http://localhost:8180/realms/api-realm/protocol/openid-connect/certs}
+
+app:
+  # Client Keycloak dont les rôles fins (tender:read/write/delete) sont lus dans le JWT.
+  resource-client-id: ${RESOURCE_CLIENT_ID:api-gateway}
+  encryption:
+    # Repli si Vault indisponible (clé AES-256 de DÉMO ; en prod => Vault uniquement).
+    master-key: ${APP_ENCRYPTION_MASTER_KEY:bD8mF2pQ7rT4vX9zC1eH6jK3nP5sV8yB0dG2hJ4lM6o=}
+
+# --- Observabilité (Annexe G) ---
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    health:
+      probes:
+        enabled: true
+  metrics:
+    tags:
+      application: tender-service
+
+logging:
+  level:
+    SECURITY_AUDIT: INFO
+    org.springframework.security: INFO

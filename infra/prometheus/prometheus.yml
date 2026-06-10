@@ -1,0 +1,28 @@
+# =====================================================================
+# Prometheus — scrutation des métriques de sécurité (Annexe G)
+# =====================================================================
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+rule_files:
+  - /etc/prometheus/alert-rules.yml
+
+scrape_configs:
+  - job_name: 'api-gateway'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['gateway:8080']
+        labels: { service: 'api-gateway' }
+
+  - job_name: 'tender-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['tender-service:8081']
+        labels: { service: 'tender-service' }
+
+  - job_name: 'user-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['user-service:8082']
+        labels: { service: 'user-service' }

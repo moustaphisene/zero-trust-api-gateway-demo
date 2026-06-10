@@ -1,0 +1,45 @@
+# =====================================================================
+# Alertes de sécurité — réf. Annexe G.3 (Table G.1)
+# =====================================================================
+groups:
+  - name: security-alerts
+    rules:
+      # Pic d'échecs d'authentification => attaque par force brute / credential stuffing.
+      - alert: HighAuthenticationFailureRate
+        expr: sum(rate(security_authentication_failure_total[5m])) > 1
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Taux élevé d'échecs d'authentification"
+          description: "Plus d'1 échec/s sur 5 min — possible force brute (OWASP A02)."
+
+      # Accès refusés répétés => tentative d'élévation de privilèges / BOLA.
+      - alert: RepeatedAccessDenied
+        expr: sum(rate(security_access_denied_total[5m])) > 0.5
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Accès refusés répétés (RBAC/ABAC)"
+          description: "Tentatives d'accès non autorisées soutenues — possible BOLA (OWASP A01)."
+
+      # Dépassements de rate limit => DDoS / abus.
+      - alert: RateLimitExceeded
+        expr: sum(rate(security_ratelimit_exceeded_total[5m])) > 2
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Limites de débit dépassées"
+          description: "Trafic anormal au Gateway — possible DDoS (réf. 2.6.5)."
+
+      # Service indisponible.
+      - alert: ServiceDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Service {{ $labels.service }} indisponible"
+          description: "La cible {{ $labels.instance }} ne répond plus."

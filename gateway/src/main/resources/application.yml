@@ -1,0 +1,85 @@
+# =====================================================================
+# API Gateway — configuration
+# Réf. : 2.6.3 (Spring Cloud Gateway), 2.6.4 (filtre JWT), 2.6.5 (rate limiting)
+# =====================================================================
+server:
+  port: 8080
+  forward-headers-strategy: framework   # respecte X-Forwarded-* (terminaison TLS en amont)
+
+spring:
+  application:
+    name: api-gateway
+
+  # --- Redis : back-end du rate limiter distribué (2.6.5) ---
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+
+  # --- Resource Server OAuth2 : validation centralisée du JWT Keycloak (1.4 / 2.6.4) ---
+  # Validation par JWKS (signature RS256 + expiration). On utilise jwk-set-uri (et non
+  # issuer-uri) pour rester indépendant du hostname Keycloak entre l'hôte et le réseau Docker.
+  # En production : activer en plus la validation de l'issuer (issuer-uri).
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: ${KEYCLOAK_JWK_SET_URI:http://localhost:8180/realms/api-realm/protocol/openid-connect/certs}
+
+  cloud:
+    gateway:
+      # Le rate limiter n'écrit pas les en-têtes X-RateLimit-* (évite l'écriture
+      # d'en-têtes sur une réponse 429 déjà committée sous forte charge).
+      redis-rate-limiter:
+        include-headers: false
+      httpclient:
+        connect-timeout: 2000
+        response-timeout: 5s
+      routes:
+        # ---- Route vers le microservice « appels d'offres » ----
+        - id: tender-service
+          uri: ${TENDER_SERVICE_URI:http://localhost:8081}
+          predicates:
+            - Path=/api/tenders/**
+          filters:
+            - JwtValidation                       # filtre personnalisé 2.6.4
+            - name: RequestRateLimiter            # rate limiting 2.6.5
+              args:
+                key-resolver: "#{@ipKeyResolver}"
+                redis-rate-limiter.replenishRate: 10      # 10 req/s en régime
+                redis-rate-limiter.burstCapacity: 20      # rafale max 20
+                redis-rate-limiter.requestedTokens: 1
+
+        # ---- Route vers le microservice « utilisateurs » ----
+        - id: user-service
+          uri: ${USER_SERVICE_URI:http://localhost:8082}
+          predicates:
+            - Path=/api/users/**
+          filters:
+            - JwtValidation
+            - name: RequestRateLimiter
+              args:
+                key-resolver: "#{@userKeyResolver}"
+                redis-rate-limiter.replenishRate: 5
+                redis-rate-limiter.burstCapacity: 10
+                redis-rate-limiter.requestedTokens: 1
+
+# --- Observabilité (Annexe G) : exposition Prometheus + sondes ---
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus,gateway
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: when-authorized
+  metrics:
+    tags:
+      application: api-gateway
+
+logging:
+  level:
+    org.springframework.security: INFO
+    SECURITY_AUDIT: INFO

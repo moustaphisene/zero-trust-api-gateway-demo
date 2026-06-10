@@ -1,0 +1,95 @@
+# =====================================================================
+# Pipeline CI/CD sécurisé (DevSecOps)
+# Réf. : Module CI/CD sécurisé + 10.2 (secrets) + Annexe G
+# Étapes : build → tests → SAST → SCA (dépendances) → secret scan → image scan
+# =====================================================================
+name: ci-secure
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write   # pour publier les SARIF dans l'onglet Security
+
+jobs:
+  build-and-test:
+    name: Build & Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+      - name: Build (sans tests)
+        run: mvn -B -ntp clean package -DskipTests
+      - name: Tests unitaires & intégration
+        run: mvn -B -ntp test
+
+  sast:
+    name: SAST — analyse statique (CodeQL)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: '21', cache: maven }
+      - uses: github/codeql-action/init@v3
+        with: { languages: java }
+      - run: mvn -B -ntp clean package -DskipTests
+      - uses: github/codeql-action/analyze@v3
+
+  sca:
+    name: SCA — vulnérabilités des dépendances (Trivy)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Trivy — scan du système de fichiers (dépendances Maven)
+        uses: aquasecurity/trivy-action@0.24.0
+        with:
+          scan-type: fs
+          scan-ref: .
+          format: sarif
+          output: trivy-fs.sarif
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+      - name: Publier le rapport SCA
+        uses: github/codeql-action/upload-sarif@v3
+        with: { sarif_file: trivy-fs.sarif }
+
+  secret-scan:
+    name: Détection de secrets (Gitleaks)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - name: Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  image-scan:
+    name: Build & scan des images Docker
+    runs-on: ubuntu-latest
+    needs: [ build-and-test ]
+    strategy:
+      matrix:
+        service: [ gateway, tender-service, user-service ]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build image ${{ matrix.service }}
+        run: docker build -f ${{ matrix.service }}/Dockerfile -t local/${{ matrix.service }}:ci .
+      - name: Trivy — scan de l'image
+        uses: aquasecurity/trivy-action@0.24.0
+        with:
+          image-ref: local/${{ matrix.service }}:ci
+          format: sarif
+          output: trivy-${{ matrix.service }}.sarif
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+      - uses: github/codeql-action/upload-sarif@v3
+        with: { sarif_file: trivy-${{ matrix.service }}.sarif }

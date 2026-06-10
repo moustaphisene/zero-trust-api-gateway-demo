@@ -1,0 +1,19 @@
+# =====================================================================
+# Profil « https » du Gateway — HTTPS / TLS (réf. 1.3.2, 1.3.3, 5.2.3)
+# Activation :  SPRING_PROFILES_ACTIVE=https
+# Prérequis  :  exécuter `make certs` (génère infra/certs/keystore.p12)
+# =====================================================================
+server:
+  port: 8443
+  ssl:
+    enabled: true
+    key-store: file:/certs/keystore.p12
+    key-store-password: ${SSL_KEYSTORE_PASSWORD:changeit}
+    key-store-type: PKCS12
+    key-alias: api-gateway
+    protocol: TLS
+    enabled-protocols: TLSv1.3,TLSv1.2
+    ciphers:
+      - TLS_AES_256_GCM_SHA384
+      - TLS_AES_128_GCM_SHA256
+      - TLS_CHACHA20_POLY1305_SHA256

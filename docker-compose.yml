@@ -1,0 +1,206 @@
+# =====================================================================
+# Démo « Sécurisation des API REST avec Spring Boot »
+# Architecture TP8 : Gateway + tender-service + user-service
+# + Keycloak (IdP) + Vault (secrets) + Postgres + Redis + Prometheus + Grafana
+# =====================================================================
+name: api-security-course
+
+services:
+  # ---------------------------------------------------------------
+  # Identity Provider — Keycloak (réf. 2.3)
+  # ---------------------------------------------------------------
+  keycloak:
+    image: quay.io/keycloak/keycloak:25.0.6
+    command: ["start-dev", "--import-realm"]
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_HTTP_ENABLED: "true"
+      KC_HOSTNAME_STRICT: "false"
+      KC_HEALTH_ENABLED: "true"
+    volumes:
+      - ./infra/keycloak/realm-export.json:/opt/keycloak/data/import/realm-export.json:ro
+    ports:
+      - "8180:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "exec 3<>/dev/tcp/127.0.0.1/9000 && printf 'GET /health/ready HTTP/1.1\\r\\nHost: localhost\\r\\nConnection: close\\r\\n\\r\\n' >&3 && cat <&3 | grep -q UP"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 40s
+    networks: [secnet]
+
+  # ---------------------------------------------------------------
+  # Gestion des secrets — HashiCorp Vault (réf. 10.2) — mode dev
+  # ---------------------------------------------------------------
+  vault:
+    image: hashicorp/vault:1.17
+    cap_add: [IPC_LOCK]
+    environment:
+      VAULT_DEV_ROOT_TOKEN_ID: root
+      VAULT_DEV_LISTEN_ADDRESS: 0.0.0.0:8200
+      VAULT_ADDR: http://127.0.0.1:8200
+    ports:
+      - "8200:8200"
+    healthcheck:
+      test: ["CMD", "vault", "status"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks: [secnet]
+
+  # Provisionnement des secrets dans Vault (one-shot — réf. Listing 10.2)
+  vault-init:
+    image: hashicorp/vault:1.17
+    depends_on:
+      vault:
+        condition: service_healthy
+    environment:
+      VAULT_ADDR: http://vault:8200
+      VAULT_TOKEN: root
+    volumes:
+      - ./infra/vault/bootstrap.sh:/bootstrap.sh:ro
+    entrypoint: ["/bin/sh", "/bootstrap.sh"]
+    networks: [secnet]
+    restart: "no"
+
+  # ---------------------------------------------------------------
+  # Persistance — PostgreSQL (tender-service)
+  # ---------------------------------------------------------------
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    volumes:
+      - ./infra/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks: [secnet]
+
+  # ---------------------------------------------------------------
+  # Rate limiting distribué — Redis (réf. 2.6.5)
+  # ---------------------------------------------------------------
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks: [secnet]
+
+  # ---------------------------------------------------------------
+  # API Gateway (réf. 2.6)
+  # ---------------------------------------------------------------
+  gateway:
+    build:
+      context: .
+      dockerfile: gateway/Dockerfile
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      KEYCLOAK_JWK_SET_URI: http://keycloak:8080/realms/api-realm/protocol/openid-connect/certs
+      TENDER_SERVICE_URI: http://tender-service:8081
+      USER_SERVICE_URI: http://user-service:8082
+    ports:
+      - "8080:8080"
+    depends_on:
+      keycloak:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "exec 3<>/dev/tcp/localhost/8080 && echo -e 'GET /actuator/health HTTP/1.0\\r\\n\\r\\n' >&3 && cat <&3 | grep -q UP"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+    networks: [secnet]
+
+  # ---------------------------------------------------------------
+  # Microservice « appels d'offres » (RBAC + ABAC + AES + Vault)
+  # ---------------------------------------------------------------
+  tender-service:
+    build:
+      context: .
+      dockerfile: tender-service/Dockerfile
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/tender_db
+      DB_USERNAME: tender_user
+      DB_PASSWORD: tender_pass
+      KEYCLOAK_JWK_SET_URI: http://keycloak:8080/realms/api-realm/protocol/openid-connect/certs
+      VAULT_URI: http://vault:8200
+      VAULT_TOKEN: root
+      VAULT_ENABLED: "true"
+    ports:
+      - "8081:8081"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+      vault:
+        condition: service_healthy
+      vault-init:
+        condition: service_completed_successfully
+    networks: [secnet]
+
+  # ---------------------------------------------------------------
+  # Microservice « utilisateurs » (RBAC user:manage)
+  # ---------------------------------------------------------------
+  user-service:
+    build:
+      context: .
+      dockerfile: user-service/Dockerfile
+    environment:
+      KEYCLOAK_JWK_SET_URI: http://keycloak:8080/realms/api-realm/protocol/openid-connect/certs
+    ports:
+      - "8082:8082"
+    depends_on:
+      keycloak:
+        condition: service_healthy
+    networks: [secnet]
+
+  # ---------------------------------------------------------------
+  # Observabilité (Annexe G)
+  # ---------------------------------------------------------------
+  prometheus:
+    image: prom/prometheus:v2.54.1
+    volumes:
+      - ./infra/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./infra/prometheus/alert-rules.yml:/etc/prometheus/alert-rules.yml:ro
+    ports:
+      - "9090:9090"
+    networks: [secnet]
+
+  grafana:
+    image: grafana/grafana:11.2.0
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - ./infra/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./infra/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
+    networks: [secnet]
+
+volumes:
+  pgdata:
+
+networks:
+  secnet:
+    driver: bridge

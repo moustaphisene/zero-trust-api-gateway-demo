@@ -1,0 +1,34 @@
+# =====================================================================
+# user-service — configuration
+# =====================================================================
+server:
+  port: 8082
+
+spring:
+  application:
+    name: user-service
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: ${KEYCLOAK_JWK_SET_URI:http://localhost:8180/realms/api-realm/protocol/openid-connect/certs}
+
+app:
+  resource-client-id: ${RESOURCE_CLIENT_ID:api-gateway}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    health:
+      probes:
+        enabled: true
+  metrics:
+    tags:
+      application: user-service
+
+logging:
+  level:
+    SECURITY_AUDIT: INFO

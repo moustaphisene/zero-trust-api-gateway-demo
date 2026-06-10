@@ -1,0 +1,223 @@
+{
+  "realm": "api-realm",
+  "enabled": true,
+  "sslRequired": "external",
+  "accessTokenLifespan": 900,
+  "registrationAllowed": false,
+  "bruteForceProtected": true,
+  "permanentLockout": false,
+  "maxFailureWaitSeconds": 900,
+  "failureFactor": 5,
+  "roles": {
+    "realm": [
+      {
+        "name": "ADMIN",
+        "description": "Administrateur systeme",
+        "composite": true,
+        "composites": {
+          "realm": ["MANAGER", "USER", "AUDITOR"],
+          "client": { "api-gateway": ["tender:delete", "user:manage"] }
+        }
+      },
+      {
+        "name": "MANAGER",
+        "description": "Gestionnaire d'offres",
+        "composite": true,
+        "composites": {
+          "realm": ["USER"],
+          "client": { "api-gateway": ["tender:write"] }
+        }
+      },
+      {
+        "name": "USER",
+        "description": "Utilisateur standard",
+        "composite": true,
+        "composites": {
+          "client": { "api-gateway": ["tender:read"] }
+        }
+      },
+      {
+        "name": "AUDITOR",
+        "description": "Auditeur en lecture seule",
+        "composite": true,
+        "composites": {
+          "client": { "api-gateway": ["tender:read"] }
+        }
+      }
+    ],
+    "client": {
+      "api-gateway": [
+        { "name": "tender:read",  "description": "Lire les appels d'offres" },
+        { "name": "tender:write", "description": "Creer / modifier les appels d'offres" },
+        { "name": "tender:delete","description": "Supprimer les appels d'offres" },
+        { "name": "user:manage",  "description": "Gerer les utilisateurs" }
+      ]
+    }
+  },
+  "clients": [
+    {
+      "clientId": "api-gateway",
+      "name": "API Gateway / Resource clients",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "secret": "gateway-secret-demo",
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": false,
+      "fullScopeAllowed": true,
+      "redirectUris": ["*"],
+      "webOrigins": ["*"],
+      "attributes": {
+        "access.token.lifespan": "900"
+      },
+      "protocolMappers": [
+        {
+          "name": "audience-api-gateway",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "config": {
+            "included.client.audience": "api-gateway",
+            "id.token.claim": "false",
+            "access.token.claim": "true"
+          }
+        },
+        {
+          "name": "department-mapper",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "config": {
+            "user.attribute": "department",
+            "claim.name": "department",
+            "jsonType.label": "String",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "userinfo.token.claim": "true"
+          }
+        },
+        {
+          "name": "clearance-level-mapper",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "config": {
+            "user.attribute": "clearance_level",
+            "claim.name": "clearance_level",
+            "jsonType.label": "String",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "userinfo.token.claim": "true"
+          }
+        },
+        {
+          "name": "approval-limit-mapper",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "config": {
+            "user.attribute": "approval_limit",
+            "claim.name": "approval_limit",
+            "jsonType.label": "String",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "userinfo.token.claim": "true"
+          }
+        },
+        {
+          "name": "location-mapper",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "config": {
+            "user.attribute": "location",
+            "claim.name": "location",
+            "jsonType.label": "String",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "userinfo.token.claim": "true"
+          }
+        },
+        {
+          "name": "tenant-id-mapper",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "config": {
+            "user.attribute": "tenant_id",
+            "claim.name": "tenant_id",
+            "jsonType.label": "String",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "userinfo.token.claim": "true"
+          }
+        }
+      ]
+    }
+  ],
+  "users": [
+    {
+      "username": "admin",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Amine",
+      "lastName": "Admin",
+      "email": "admin@api-realm.local",
+      "credentials": [{ "type": "password", "value": "admin123", "temporary": false }],
+      "realmRoles": ["ADMIN"],
+      "attributes": {
+        "department": ["IT"],
+        "clearance_level": ["5"],
+        "approval_limit": ["10000000"],
+        "location": ["DAKAR"],
+        "tenant_id": ["tenant-alpha"]
+      }
+    },
+    {
+      "username": "manager",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Ahmed",
+      "lastName": "Alami",
+      "email": "manager@api-realm.local",
+      "credentials": [{ "type": "password", "value": "manager123", "temporary": false }],
+      "realmRoles": ["MANAGER"],
+      "attributes": {
+        "department": ["ENGINEERING"],
+        "clearance_level": ["3"],
+        "approval_limit": ["500000"],
+        "location": ["RABAT"],
+        "tenant_id": ["tenant-alpha"]
+      }
+    },
+    {
+      "username": "user",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Fatima",
+      "lastName": "Zahra",
+      "email": "user@api-realm.local",
+      "credentials": [{ "type": "password", "value": "user123", "temporary": false }],
+      "realmRoles": ["USER"],
+      "attributes": {
+        "department": ["FINANCE"],
+        "clearance_level": ["1"],
+        "approval_limit": ["0"],
+        "location": ["CASABLANCA"],
+        "tenant_id": ["tenant-alpha"]
+      }
+    },
+    {
+      "username": "auditor",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Omar",
+      "lastName": "Auditeur",
+      "email": "auditor@api-realm.local",
+      "credentials": [{ "type": "password", "value": "auditor123", "temporary": false }],
+      "realmRoles": ["AUDITOR"],
+      "attributes": {
+        "department": ["COMPLIANCE"],
+        "clearance_level": ["2"],
+        "approval_limit": ["0"],
+        "location": ["DAKAR"],
+        "tenant_id": ["tenant-alpha"]
+      }
+    }
+  ]
+}
