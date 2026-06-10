@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # =====================================================================
 # Génération d'un keystore PKCS12 auto-signé pour HTTPS/TLS du Gateway
-# Réf. 1.3.3 (Listing 1.3). DÉVELOPPEMENT UNIQUEMENT.
+# DÉVELOPPEMENT UNIQUEMENT.
 # En production : certificat émis par une CA reconnue (Let's Encrypt, DigiCert...).
 # =====================================================================
 set -e

@@ -1,6 +1,6 @@
 # =====================================================================
 # Pipeline CI/CD sécurisé (DevSecOps)
-# Réf. : Module CI/CD sécurisé + 10.2 (secrets) + Annexe G
+# Couvre : sécurité de la chaîne CI/CD, gestion des secrets, observabilité
 # Étapes : build → tests → SAST → SCA (dépendances) → secret scan → image scan
 # =====================================================================
 name: ci-secure
@@ -26,10 +26,8 @@ jobs:
           distribution: temurin
           java-version: '21'
           cache: maven
-      - name: Build (sans tests)
-        run: mvn -B -ntp clean package -DskipTests
-      - name: Tests unitaires & intégration
-        run: mvn -B -ntp test
+      - name: Tests (unitaires + slice + intégration Testcontainers)
+        run: mvn -B -ntp verify
 
   sast:
     name: SAST — analyse statique (CodeQL)

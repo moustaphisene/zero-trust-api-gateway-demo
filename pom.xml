@@ -7,7 +7,7 @@
     <!-- =====================================================================
          Parent POM — Sécurisation des API REST avec Spring Boot (démo)
          D'après mes expériences professionnelles RETEX, mes lectures et recherches (2025-2026).
-         Architecture du TP8 : API Gateway + tender-service + user-service.
+         Architecture : API Gateway + tender-service + user-service.
          ===================================================================== -->
 
     <groupId>moustapha.nfsgroup</groupId>

@@ -13,7 +13,7 @@ import java.math.BigDecimal;
 import java.time.LocalTime;
 
 /**
- * PDP (Policy Decision Point) ABAC — réf. <b>2.4.2</b>.
+ * PDP (Policy Decision Point) ABAC.
  *
  * <p>Évalue les décisions d'accès à partir d'attributs issus de plusieurs sources :
  * l'utilisateur (claims du JWT : {@code department}, {@code clearance_level},

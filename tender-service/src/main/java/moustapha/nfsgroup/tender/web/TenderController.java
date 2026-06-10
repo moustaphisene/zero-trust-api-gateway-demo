@@ -21,7 +21,7 @@ import static moustapha.nfsgroup.tender.web.TenderDtos.*;
 /**
  * API « appels d'offres ».
  *
- * <p>Démontre la matrice RBAC (Table 2.4) et les politiques ABAC (2.4.2) :
+ * <p>Démontre la matrice RBAC et les politiques ABAC :
  * <pre>
  *   Action / Rôle        ADMIN  MANAGER  USER  AUDITOR
  *   Lire les offres       Oui     Oui    Oui    Oui
@@ -31,7 +31,7 @@ import static moustapha.nfsgroup.tender.web.TenderDtos.*;
  *   Supprimer             Oui     Non    Non    Non
  * </pre>
  *
- * <p><b>BOLA / OWASP A01 (4.2)</b> : chaque accès par identifiant vérifie que l'offre
+ * <p><b>BOLA / OWASP A01</b> : chaque accès par identifiant vérifie que l'offre
  * appartient bien au tenant de l'appelant — on ne se fie jamais au seul ID fourni.
  */
 @RestController

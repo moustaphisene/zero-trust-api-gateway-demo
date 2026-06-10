@@ -1,5 +1,5 @@
 # =====================================================================
-# Prometheus — scrutation des métriques de sécurité (Annexe G)
+# Prometheus — scrutation des métriques de sécurité
 # =====================================================================
 global:
   scrape_interval: 15s

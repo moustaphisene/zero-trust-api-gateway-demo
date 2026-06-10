@@ -11,7 +11,7 @@ import java.security.SecureRandom;
 import java.util.Base64;
 
 /**
- * Chiffrement au repos AES-256-GCM — réf. <b>5.3.1 / 5.3.2</b>.
+ * Chiffrement au repos AES-256-GCM.
  *
  * <p>GCM (Galois/Counter Mode) fournit à la fois la confidentialité et l'authenticité
  * (tag d'intégrité). Un IV aléatoire de 12 octets est généré par opération et préfixé

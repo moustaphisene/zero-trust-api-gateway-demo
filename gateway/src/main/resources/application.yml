@@ -1,6 +1,6 @@
 # =====================================================================
 # API Gateway — configuration
-# Réf. : 2.6.3 (Spring Cloud Gateway), 2.6.4 (filtre JWT), 2.6.5 (rate limiting)
+# Domaines : Spring Cloud Gateway, filtre JWT, rate limiting
 # =====================================================================
 server:
   port: 8080
@@ -10,7 +10,7 @@ spring:
   application:
     name: api-gateway
 
-  # --- Redis : back-end du rate limiter distribué (2.6.5) ---
+  # --- Redis : back-end du rate limiter distribué ---
   data:
     redis:
       host: ${REDIS_HOST:localhost}
@@ -64,7 +64,7 @@ spring:
                 redis-rate-limiter.burstCapacity: 10
                 redis-rate-limiter.requestedTokens: 1
 
-# --- Observabilité (Annexe G) : exposition Prometheus + sondes ---
+# --- Observabilité : exposition Prometheus + sondes ---
 management:
   endpoints:
     web:

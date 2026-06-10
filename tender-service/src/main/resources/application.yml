@@ -1,6 +1,6 @@
 # =====================================================================
 # tender-service — configuration
-# Réf. : 2.6.4 (Resource Server JWT), 5.3 (AES), 10.2 (Vault), Annexe G (observabilité)
+# Domaines : Resource Server JWT, chiffrement AES, secrets Vault, observabilité
 # =====================================================================
 server:
   port: 8081
@@ -9,7 +9,7 @@ spring:
   application:
     name: tender-service
 
-  # --- Gestion des secrets : Spring Cloud Vault (10.2.3 — Listing 10.1) ---
+  # --- Gestion des secrets : Spring Cloud Vault ---
   # La clé maîtresse AES et (optionnellement) les creds DB sont servies par Vault.
   # fail-fast=false + valeur de repli => la démo démarre même si Vault est absent.
   config:
@@ -39,7 +39,7 @@ spring:
         format_sql: false
     open-in-view: false
 
-  # --- Resource Server : re-validation du JWT Keycloak (Zero Trust 9.5) ---
+  # --- Resource Server : re-validation du JWT Keycloak (Zero Trust) ---
   # Validation JWKS interne (signature RS256 + expiration) — voir note du gateway.
   security:
     oauth2:
@@ -54,7 +54,7 @@ app:
     # Repli si Vault indisponible (clé AES-256 de DÉMO ; en prod => Vault uniquement).
     master-key: ${APP_ENCRYPTION_MASTER_KEY:bD8mF2pQ7rT4vX9zC1eH6jK3nP5sV8yB0dG2hJ4lM6o=}
 
-# --- Observabilité (Annexe G) ---
+# --- Observabilité ---
 management:
   endpoints:
     web:

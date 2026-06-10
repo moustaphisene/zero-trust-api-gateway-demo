@@ -1,13 +1,13 @@
 # =====================================================================
 # Démo « Sécurisation des API REST avec Spring Boot »
-# Architecture TP8 : Gateway + tender-service + user-service
+# Architecture : Gateway + tender-service + user-service
 # + Keycloak (IdP) + Vault (secrets) + Postgres + Redis + Prometheus + Grafana
 # =====================================================================
 name: api-security-course
 
 services:
   # ---------------------------------------------------------------
-  # Identity Provider — Keycloak (réf. 2.3)
+  # Identity Provider — Keycloak
   # ---------------------------------------------------------------
   keycloak:
     image: quay.io/keycloak/keycloak:25.0.6
@@ -31,7 +31,7 @@ services:
     networks: [secnet]
 
   # ---------------------------------------------------------------
-  # Gestion des secrets — HashiCorp Vault (réf. 10.2) — mode dev
+  # Gestion des secrets — HashiCorp Vault — mode dev
   # ---------------------------------------------------------------
   vault:
     image: hashicorp/vault:1.17
@@ -49,7 +49,7 @@ services:
       retries: 10
     networks: [secnet]
 
-  # Provisionnement des secrets dans Vault (one-shot — réf. Listing 10.2)
+  # Provisionnement des secrets dans Vault (one-shot)
   vault-init:
     image: hashicorp/vault:1.17
     depends_on:
@@ -86,7 +86,7 @@ services:
     networks: [secnet]
 
   # ---------------------------------------------------------------
-  # Rate limiting distribué — Redis (réf. 2.6.5)
+  # Rate limiting distribué — Redis
   # ---------------------------------------------------------------
   redis:
     image: redis:7-alpine
@@ -100,7 +100,7 @@ services:
     networks: [secnet]
 
   # ---------------------------------------------------------------
-  # API Gateway (réf. 2.6)
+  # API Gateway
   # ---------------------------------------------------------------
   gateway:
     build:
@@ -172,7 +172,7 @@ services:
     networks: [secnet]
 
   # ---------------------------------------------------------------
-  # Observabilité (Annexe G)
+  # Observabilité
   # ---------------------------------------------------------------
   prometheus:
     image: prom/prometheus:v2.54.1

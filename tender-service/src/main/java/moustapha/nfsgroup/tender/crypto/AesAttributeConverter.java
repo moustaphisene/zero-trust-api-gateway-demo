@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
- * Converter JPA appliquant de façon transparente le chiffrement AES-256-GCM (5.3)
+ * Converter JPA appliquant de façon transparente le chiffrement AES-256-GCM
  * aux attributs annotés {@code @Convert(converter = AesAttributeConverter.class)}.
  *
  * <p>Les converters JPA ne sont pas gérés par Spring : on relie le bean
