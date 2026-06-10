@@ -1,6 +1,6 @@
 #!/bin/sh
 # =====================================================================
-# Bootstrap Vault — réf. 10.2 (Listing 10.2)
+# Bootstrap Vault — provisionnement des secrets
 # Provisionne les secrets servis au tender-service (clé AES, secret JWT).
 # Exécuté en mode dev (token racine). En production : AppRole + TLS + DB engine.
 # =====================================================================
@@ -26,7 +26,7 @@ vault kv put secret/tender-service \
   app.encryption.master-key="${MASTER_KEY}" \
   jwt.secret="${JWT_SECRET}"
 
-# Politique de moindre privilège : lecture seule sur le secret du service (Zero Trust 9.5).
+# Politique de moindre privilège : lecture seule sur le secret du service (Zero Trust).
 echo "[vault-init] Application de la politique tender-service ..."
 cat <<EOF | vault policy write tender-service -
 path "secret/data/tender-service" {

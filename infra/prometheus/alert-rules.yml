@@ -1,5 +1,5 @@
 # =====================================================================
-# Alertes de sécurité — réf. Annexe G.3 (Table G.1)
+# Alertes de sécurité (observabilité)
 # =====================================================================
 groups:
   - name: security-alerts
@@ -32,7 +32,7 @@ groups:
           severity: critical
         annotations:
           summary: "Limites de débit dépassées"
-          description: "Trafic anormal au Gateway — possible DDoS (réf. 2.6.5)."
+          description: "Trafic anormal au Gateway — possible DDoS."
 
       # Service indisponible.
       - alert: ServiceDown

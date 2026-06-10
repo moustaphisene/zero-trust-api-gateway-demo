@@ -10,7 +10,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 /**
  * Active la sécurité au niveau méthode (@PreAuthorize) et branche le PDP ABAC.
  *
- * <p>Réf. 2.4.2 : le {@link AbacPermissionEvaluator} joue le rôle de
+ * <p>Le {@link AbacPermissionEvaluator} joue le rôle de
  * <b>PDP (Policy Decision Point)</b>, invoqué depuis les annotations
  * {@code @PreAuthorize("hasPermission(...)")} qui font office de
  * <b>PEP (Policy Enforcement Point)</b>.

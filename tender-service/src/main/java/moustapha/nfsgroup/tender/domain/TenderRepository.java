@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * Repository JPA des appels d'offres.
  *
- * <p><b>OWASP A03 — Injection (4.5)</b> : toutes les requêtes utilisent des
+ * <p><b>OWASP A03 — Injection</b> : toutes les requêtes utilisent des
  * <i>paramètres liés</i> ({@code :tenantId}). On ne concatène jamais de chaîne
  * utilisateur dans une requête JPQL/SQL (cf. exemple vulnérable du §4.5.2).
  */

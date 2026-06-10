@@ -8,7 +8,7 @@ import java.time.Instant;
 /**
  * Appel d'offres (tender).
  *
- * <p>Le champ {@code sealedBudget} illustre le <b>chiffrement au repos AES-256-GCM (5.3)</b> :
+ * <p>Le champ {@code sealedBudget} illustre le <b>chiffrement au repos AES-256-GCM</b> :
  * il est converti de façon transparente par {@code AesAttributeConverter} avant persistance.
  */
 @Entity

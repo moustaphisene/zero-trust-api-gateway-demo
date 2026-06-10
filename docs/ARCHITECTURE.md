@@ -2,10 +2,10 @@
 
 ## Vue d'ensemble
 
-Architecture issue du **TP8**: un Gateway qui valide le token, et des
+Architecture en défense en profondeur : un Gateway qui valide le token, et des
 microservices qui **re-valident** — la sécurité n'est jamais déléguée à une seule couche.
 
-## Flux d'authentification (OAuth2 / OIDC — réf. 2.5, 9.2)
+## Flux d'authentification (OAuth2 / OIDC)
 
 ```
 1. Client ──(username/password, client_id, client_secret)──► Keycloak /token
@@ -24,7 +24,7 @@ microservices qui **re-valident** — la sécurité n'est jamais déléguée à 
 | **Rôles composites Keycloak** | ADMIN ⊃ MANAGER ⊃ USER ; mappent les permissions fines (`tender:*`) sans les attribuer une à une. |
 | **Keycloak en `start-dev` (H2)** | Démarrage simple, sans couplage à Postgres. Pour la prod : base externe + `start` + hostname. |
 | **Vault `fail-fast: false` + clé de repli** | La démo démarre même si Vault est indisponible ; en prod, la clé vient **uniquement** de Vault. |
-| **Conteneurs non-root** | Durcissement (Annexe A) : chaque image applicative tourne sous l'utilisateur `app`. |
+| **Conteneurs non-root** | Durcissement : chaque image applicative tourne sous l'utilisateur `app`. |
 | **DTO ≠ Entité** | Empêche le *mass assignment* (OWASP A03) ; `tenantId`/`createdBy`/`status` sont imposés serveur. |
 | **404 au lieu de 403 sur cross-tenant** | Anti-énumération : ne révèle pas l'existence d'une ressource d'un autre tenant (BOLA / A01). |
 

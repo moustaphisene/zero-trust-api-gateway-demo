@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * Convertit les rôles Keycloak du JWT en {@link GrantedAuthority} Spring Security — support du <b>RBAC (2.4.1)</b>.
+ * Convertit les rôles Keycloak du JWT en {@link GrantedAuthority} Spring Security — support du <b>RBAC</b>.
  *
  * <p>Keycloak expose les rôles à deux endroits :
  * <ul>

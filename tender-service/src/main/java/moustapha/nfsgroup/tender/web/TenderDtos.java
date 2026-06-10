@@ -12,7 +12,7 @@ import java.time.Instant;
 /**
  * Objets de transfert.
  *
- * <p><b>OWASP A03 — Broken Object Property Level Authorization (4.4)</b> : on n'expose
+ * <p><b>OWASP A03 — Broken Object Property Level Authorization</b> : on n'expose
  * jamais l'entité JPA directement et on n'accepte jamais d'objet « brut » du client.
  * Le DTO d'entrée ne contient QUE les champs modifiables (pas de {@code tenantId},
  * {@code createdBy}, {@code status}) — protection contre le <i>mass assignment</i>.

@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 /**
  * Traitement uniforme des erreurs (format RFC 7807 ProblemDetail).
  *
- * <p><b>OWASP A05 — Security Misconfiguration (4.6)</b> : on ne renvoie jamais de
+ * <p><b>OWASP A05 — Security Misconfiguration</b> : on ne renvoie jamais de
  * stack trace ni de détail interne au client. Les messages sont génériques et stables.
  */
 @RestControllerAdvice

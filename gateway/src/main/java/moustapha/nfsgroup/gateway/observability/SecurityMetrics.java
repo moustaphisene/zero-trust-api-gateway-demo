@@ -5,7 +5,7 @@ import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.stereotype.Component;
 
 /**
- * Métriques de sécurité du Gateway exposées à Prometheus — réf. <b>Annexe G.2</b>.
+ * Métriques de sécurité du Gateway exposées à Prometheus.
  *
  * <p>Compteurs publiés sur {@code /actuator/prometheus} :
  * <ul>
