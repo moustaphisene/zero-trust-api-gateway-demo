@@ -1,14 +1,14 @@
 # 🔐 Sécurisation des API REST avec Spring Boot — Démo prête à l'emploi
 
 Projet de démonstration complet illustrant les pratiques de sécurité des API REST,
-d'après l'ouvrage *Sécurisation des API REST avec Spring Boot* (Dr. Badr El Khalyly, 2025-2026).
+d'après mes expériences professionnelles RETEX, mes lectures et recherches (2025-2026)).
 
 Architecture **microservices Zero Trust** : une **API Gateway** sécurisée protège deux
 microservices ressources (`tender-service`, `user-service`), avec **Keycloak** comme
 Identity Provider, **HashiCorp Vault** pour les secrets, et une stack **Prometheus/Grafana**
 pour l'observabilité de la sécurité.
 
-> 👤 Auteur de la démo : **Moustapha SENE** — SEN IT SERVICES PRO.
+> 👤 Auteur de la démo : **Moustapha SENE** — NFS GROUP ex SEN IT SERVICES PRO.
 
 ---
 
@@ -16,14 +16,14 @@ pour l'observabilité de la sécurité.
 
 ```
                          ┌──────────────────────────┐
-   Postman / Client ───► │   API GATEWAY  :8080      │  En-têtes sécu (1.2.3)
-        (JWT)            │  Spring Cloud Gateway     │  Validation JWT (2.6.4)
-                         │                           │  Rate limiting (2.6.5)
+   Postman / Client ───► │   API GATEWAY  :8080      │  En-têtes sécu 
+        (JWT)            │  Spring Cloud Gateway     │  Validation JWT 
+                         │                           │  Rate limiting 
                          └───┬──────────────┬────────┘  Propagation identité (Zero Trust)
                              │ JWT          │ JWT
                    ┌─────────▼───┐    ┌─────▼─────────┐
-                   │ tender-svc  │    │  user-svc     │   Re-validation JWT (9.5)
-                   │ :8081       │    │  :8082        │   RBAC + ABAC (2.4)
+                   │ tender-svc  │    │  user-svc     │   Re-validation JWT 
+                   │ :8081       │    │  :8082        │   RBAC + ABAC 
                    │ RBAC+ABAC   │    └───────────────┘
                    │ AES, Vault  │
                    └─────┬───────┘
@@ -91,7 +91,7 @@ Matrice RBAC (Table 2.4) appliquée dans `TenderController` ; politiques ABAC (2
 
 ---
 
-## 🔒 HTTPS / TLS (optionnel — réf. 1.3.3)
+## 🔒 HTTPS / TLS (optionnel — )
 
 ```bash
 make up-https     # génère le keystore auto-signé puis démarre le Gateway en TLS (8443)

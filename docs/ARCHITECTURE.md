@@ -2,7 +2,7 @@
 
 ## Vue d'ensemble
 
-Architecture issue du **TP8** de l'ouvrage : un Gateway qui valide le token, et des
+Architecture issue du **TP8**: un Gateway qui valide le token, et des
 microservices qui **re-valident** — la sécurité n'est jamais déléguée à une seule couche.
 
 ## Flux d'authentification (OAuth2 / OIDC — réf. 2.5, 9.2)
