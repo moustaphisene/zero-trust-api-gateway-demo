@@ -1,0 +1,43 @@
+# =====================================================================
+# Override « vaultdb » — credentials PostgreSQL dynamiques via le moteur Database de Vault.
+# Usage :
+#   docker compose -f docker-compose.yml -f docker-compose.vaultdb.yml up -d --build
+#   (ou : make up-vaultdb)
+#
+# Le tender-service ne reçoit plus DB_USERNAME/DB_PASSWORD : Vault lui délivre un
+# compte PostgreSQL éphémère au démarrage (rôle dynamique tender-service).
+# =====================================================================
+services:
+  # Configure le moteur Database de Vault une fois Vault + Postgres prêts.
+  vault-db-init:
+    image: hashicorp/vault:1.17
+    depends_on:
+      vault:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      vault-init:
+        condition: service_completed_successfully
+    environment:
+      VAULT_ADDR: http://vault:8200
+      VAULT_TOKEN: root
+    volumes:
+      - ./infra/vault/configure-db-engine.sh:/configure-db-engine.sh:ro
+    entrypoint: ["/bin/sh", "/configure-db-engine.sh"]
+    networks: [secnet]
+    restart: "no"
+
+  tender-service:
+    environment:
+      SPRING_PROFILES_ACTIVE: vaultdb
+      # Activation du backend « database » en variables d'env : elles sont disponibles
+      # dès la phase config.import (un fichier de profil arriverait trop tard).
+      SPRING_CLOUD_VAULT_DATABASE_ENABLED: "true"
+      SPRING_CLOUD_VAULT_DATABASE_ROLE: tender-service
+      SPRING_CLOUD_VAULT_DATABASE_BACKEND: database
+      # Pas de credentials statiques : Vault les fournit dynamiquement.
+      DB_USERNAME: ""
+      DB_PASSWORD: ""
+    depends_on:
+      vault-db-init:
+        condition: service_completed_successfully

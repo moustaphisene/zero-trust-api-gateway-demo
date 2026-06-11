@@ -17,7 +17,7 @@ Chaque thème couvert est relié au(x) fichier(s) qui l'implémente(nt) dans la 
 | OWASP | **OWASP Top 10 pour les API** | A01/BOLA & multi-tenant (`TenderController.loadWithTenantCheck`), A03/Injection (`TenderRepository`, requêtes paramétrées + Bean Validation), A03/Mass-assignment (`TenderDtos`), A05/Misconfig (`GlobalExceptionHandler`, en-têtes), A07/Auth (Keycloak brute-force) |
 | Microservices | **Sécurité Gateway & microservices** | Gateway + 2 services, re-validation JWT côté service, propagation d'identité, anti header-spoofing |
 | Zero Trust | **Zero Trust** | Deny-by-default + re-validation JWT par chaque service + suppression des en-têtes X-* clients ; voir `docs/ZERO-TRUST-MTLS.md` |
-| Secrets | **Gestion des secrets — HashiCorp Vault** | `infra/vault/bootstrap.sh`, config `spring.cloud.vault` (`tender-service/application.yml`), clé AES servie par Vault |
+| Secrets | **Gestion des secrets — HashiCorp Vault** | `infra/vault/bootstrap.sh` (clé AES servie par Vault) + **credentials PostgreSQL dynamiques** (`infra/vault/configure-db-engine.sh`, profil `vaultdb`, `docs/VAULT-DYNAMIC-DB.md`) |
 | Chiffrement | **Chiffrement au repos (AES-256-GCM)** | `tender-service/.../crypto/AesEncryptionService.java` + `AesAttributeConverter.java` |
 | DevSecOps | **Pipeline CI/CD sécurisé** | `.github/workflows/ci-secure.yml` (build, SAST CodeQL, SCA Trivy, secret-scan Gitleaks, image-scan) |
 | Observabilité | **Monitoring & observabilité de la sécurité** | `SecurityEventLogger` + `SecurityMetrics` (gateway & tender), `infra/prometheus/*`, `infra/grafana/*` |

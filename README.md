@@ -118,6 +118,22 @@ Détails et activation du mTLS : **[docs/ZERO-TRUST-MTLS.md](docs/ZERO-TRUST-MTL
 
 ---
 
+## 🔑 Credentials PostgreSQL dynamiques (optionnel)
+
+Avec le moteur **Database de Vault**, le tender-service n'a plus de mot de passe statique :
+Vault lui délivre un **compte PostgreSQL éphémère** (TTL court, révoqué automatiquement).
+
+```bash
+make up-vaultdb        # démarre la stack avec credentials DB dynamiques
+make vaultdb-whoami    # montre le compte éphémère v-token-… utilisé par le service
+```
+
+Astuce d'ownership : chaque compte dynamique est créé `IN ROLE tender_user` avec
+`ALTER ROLE … SET ROLE tender_user`, donc il ne possède aucun objet et reste révocable
+proprement. Détails : **[docs/VAULT-DYNAMIC-DB.md](docs/VAULT-DYNAMIC-DB.md)**.
+
+---
+
 ## 🧭 Où trouver quoi ?
 
 Voir **[docs/THEMES-MAPPING.md](docs/THEMES-MAPPING.md)** : chaque thème couvert est
