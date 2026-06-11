@@ -21,7 +21,7 @@ microservices qui **re-valident** — la sécurité n'est jamais déléguée à 
 | Décision | Justification |
 |----------|---------------|
 | **Validation JWT par `jwk-set-uri`** (et non `issuer-uri`) | Évite le conflit d'issuer entre l'hôte (`localhost:8180`) et le réseau Docker (`keycloak:8080`). La signature RS256 et l'expiration sont validées. En prod : ajouter la validation d'issuer avec un hostname Keycloak fixe. |
-| **Rôles composites Keycloak** | ADMIN ⊃ MANAGER ⊃ USER ; mappent les permissions fines (`tender:*`) sans les attribuer une à une. |
+| **Rôles composites Keycloak** | ADMIN  MANAGER  USER ; mappent les permissions fines (`tender:*`) sans les attribuer une à une. |
 | **Keycloak en `start-dev` (H2)** | Démarrage simple, sans couplage à Postgres. Pour la prod : base externe + `start` + hostname. |
 | **Vault `fail-fast: false` + clé de repli** | La démo démarre même si Vault est indisponible ; en prod, la clé vient **uniquement** de Vault. |
 | **Conteneurs non-root** | Durcissement : chaque image applicative tourne sous l'utilisateur `app`. |
