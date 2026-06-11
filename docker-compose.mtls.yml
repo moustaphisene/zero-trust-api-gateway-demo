@@ -1,0 +1,36 @@
+# =====================================================================
+# Override mTLS — TLS mutuel entre le Gateway et les microservices.
+# Usage :
+#   make mtls-certs          # génère la PKI dans infra/certs/
+#   docker compose -f docker-compose.yml -f docker-compose.mtls.yml up -d --build
+# (ou : make up-mtls)
+#
+# Effet : tender-service et user-service n'écoutent plus qu'en HTTPS avec
+# client-auth=need ; le Gateway les appelle en https en présentant son
+# certificat client. Un appel direct sans certificat client est rejeté au
+# niveau TLS (démonstration concrète du chiffrement bout-en-bout Zero Trust).
+# =====================================================================
+services:
+  tender-service:
+    environment:
+      SPRING_PROFILES_ACTIVE: mtls
+      MTLS_PASSWORD: ${MTLS_PASSWORD:-changeit}
+    volumes:
+      - ./infra/certs:/certs:ro
+
+  user-service:
+    environment:
+      SPRING_PROFILES_ACTIVE: mtls
+      MTLS_PASSWORD: ${MTLS_PASSWORD:-changeit}
+    volumes:
+      - ./infra/certs:/certs:ro
+
+  gateway:
+    environment:
+      SPRING_PROFILES_ACTIVE: mtls
+      MTLS_PASSWORD: ${MTLS_PASSWORD:-changeit}
+      # Les microservices sont désormais joignables en HTTPS uniquement.
+      TENDER_SERVICE_URI: https://tender-service:8081
+      USER_SERVICE_URI: https://user-service:8082
+    volumes:
+      - ./infra/certs:/certs:ro
