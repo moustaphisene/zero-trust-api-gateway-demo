@@ -1,0 +1,33 @@
+# =====================================================================
+# Profil « vaultdb » du tender-service — credentials PostgreSQL DYNAMIQUES via Vault.
+# Le service ne connaît plus de mot de passe statique : Vault lui délivre un compte
+# PostgreSQL éphémère au démarrage, et renouvelle le bail (rotation).
+# Activation : SPRING_PROFILES_ACTIVE=vaultdb
+# =====================================================================
+spring:
+  cloud:
+    vault:
+      # Backend « database » : génère spring.datasource.username/password à la volée.
+      # NB : l'activation effective (enabled/role/backend) est aussi passée en variables
+      # d'environnement dans docker-compose.vaultdb.yml — elles doivent être disponibles
+      # dès la phase config.import (un fichier de profil arrive trop tard pour l'import).
+      database:
+        enabled: true
+        role: tender-service
+        backend: database
+        username-property: spring.datasource.username
+        password-property: spring.datasource.password
+      # Renouvellement automatique des baux (credentials + secrets).
+      config:
+        lifecycle:
+          enabled: true
+          min-renewal: 10s
+          expiry-threshold: 1m
+  datasource:
+    url: jdbc:postgresql://postgres:5432/tender_db
+    # username / password NON définis ici : fournis dynamiquement par Vault.
+    hikari:
+      # Le pool reste petit : à chaque rotation, de nouvelles connexions prennent
+      # les credentials renouvelés (les anciennes restent valides jusqu'à expiration).
+      maximum-pool-size: 5
+      max-lifetime: 600000      # 10 min : recyclage régulier des connexions

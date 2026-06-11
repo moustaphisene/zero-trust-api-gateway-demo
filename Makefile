@@ -49,6 +49,19 @@ up-mtls: mtls-certs ## Démarre la stack avec mTLS Gateway ↔ microservices
 	@echo "→ mTLS actif : Gateway appelle tender/user en https avec cert client"
 	@echo "→ Preuve : curl -k https://localhost:8081/api/tenders  ⇒ rejet TLS (cert client requis)"
 
+up-vaultdb: ## Démarre la stack avec credentials PostgreSQL DYNAMIQUES (Vault DB engine)
+	$(COMPOSE) -f docker-compose.yml -f docker-compose.vaultdb.yml up -d --build
+	@echo "→ tender-service se connecte avec un compte PostgreSQL éphémère généré par Vault"
+	@echo "→ Preuve : make vaultdb-whoami  (affiche le compte dynamique v-token-… utilisé)"
+
+vaultdb-whoami: ## Montre le(s) compte(s) PostgreSQL dynamique(s) créé(s) par Vault
+	@echo "Comptes dynamiques Vault dans PostgreSQL :"
+	@docker compose exec -T postgres psql -U postgres -d tender_db -tAc \
+		"select rolname from pg_roles where rolname like 'v-token-%' order by 1;" || true
+	@echo "Connexions actives sur tender_db :"
+	@docker compose exec -T postgres psql -U postgres -d tender_db -tAc \
+		"select distinct usename from pg_stat_activity where datname='tender_db' and usename like 'v-%';" || true
+
 token-user: ## Récupère un access_token pour l'utilisateur 'user'
 	@curl -s -X POST http://localhost:8180/realms/api-realm/protocol/openid-connect/token \
 		-d grant_type=password -d client_id=api-gateway -d client_secret=gateway-secret-demo \
