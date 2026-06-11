@@ -91,11 +91,30 @@ Matrice RBAC appliquée dans `TenderController` ; politiques ABAC dans
 
 ---
 
-## 🔒 HTTPS / TLS (optionnel — )
+## 🔒 HTTPS / TLS (optionnel)
 
 ```bash
 make up-https     # génère le keystore auto-signé puis démarre le Gateway en TLS (8443)
 ```
+
+---
+
+## 🛡️ mTLS inter-services (optionnel)
+
+TLS mutuel entre le Gateway et les microservices : chaque appel interne est chiffré et
+**authentifié des deux côtés** par certificat X.509 (chiffrement bout-en-bout du Zero Trust).
+
+```bash
+make up-mtls      # génère la PKI puis démarre la stack avec mTLS Gateway ↔ services
+```
+
+Preuve d'application : un appel direct sans certificat client est **rejeté au niveau TLS**.
+
+```bash
+curl -k https://localhost:8081/api/tenders   # ⇒ échec handshake (certificat client requis)
+```
+
+Détails et activation du mTLS : **[docs/ZERO-TRUST-MTLS.md](docs/ZERO-TRUST-MTLS.md)**.
 
 ---
 

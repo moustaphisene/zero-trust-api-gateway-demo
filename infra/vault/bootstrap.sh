@@ -16,9 +16,13 @@ done
 echo "[vault-init] Vault est prêt."
 
 # En mode dev, le secrets engine KV v2 est déjà monté sur 'secret/'.
-# Clé maîtresse AES-256 (32 octets -> Base64) + secret JWT applicatif.
-# (L'image Vault n'a pas openssl : on utilise /dev/urandom + base64 de busybox.)
-MASTER_KEY="$(head -c 32 /dev/urandom | base64 | tr -d '\n')"
+# Clé maîtresse AES-256 (32 octets, Base64) — DÉTERMINISTE en démo.
+# Vault étant en mode dev (in-memory), il perd ses secrets à chaque redémarrage et
+# vault-init est ré-exécuté. Une clé ALÉATOIRE casserait alors le déchiffrement des
+# données déjà persistées (volume pgdata). On sert donc une clé STABLE, identique à
+# la valeur de repli de tender-service/application.yml : tout redémarrage reste sûr.
+# En production : clé aléatoire unique + rotation (jamais en clair dans un script).
+MASTER_KEY="bD8mF2pQ7rT4vX9zC1eH6jK3nP5sV8yB0dG2hJ4lM6o="
 JWT_SECRET="$(head -c 64 /dev/urandom | base64 | tr -d '\n')"
 
 echo "[vault-init] Écriture des secrets statiques secret/tender-service ..."
@@ -34,6 +38,6 @@ path "secret/data/tender-service" {
 }
 EOF
 
-echo "[vault-init] ✅ Secrets provisionnés."
+echo "[vault-init]  Secrets provisionnés."
 echo "[vault-init] Vérification :"
 vault kv get secret/tender-service

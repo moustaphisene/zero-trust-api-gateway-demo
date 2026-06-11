@@ -1,0 +1,18 @@
+# =====================================================================
+# Profil « mtls » du user-service — TLS mutuel entrant (Zero Trust)
+# Activation : SPRING_PROFILES_ACTIVE=mtls (+ montage de /certs)
+# =====================================================================
+server:
+  port: 8082
+  ssl:
+    enabled: true
+    key-store: file:/certs/user-service.p12
+    key-store-password: ${MTLS_PASSWORD:changeit}
+    key-store-type: PKCS12
+    key-alias: user-service
+    trust-store: file:/certs/truststore.p12
+    trust-store-password: ${MTLS_PASSWORD:changeit}
+    trust-store-type: PKCS12
+    client-auth: need            # mTLS : certificat client OBLIGATOIRE
+    protocol: TLS
+    enabled-protocols: TLSv1.3,TLSv1.2
