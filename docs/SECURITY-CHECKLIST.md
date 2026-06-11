@@ -28,7 +28,7 @@
 - ✔ Secrets via Vault (clé AES, secret JWT)
 - ✔ Chiffrement au repos AES-256-GCM (données scellées)
 - ✔ Aucun secret en dur committé (`.gitignore`, `.env.example`)
-- ➖ Rotation dynamique des creds DB (Vault DB engine) — documentée
+- ✔ Credentials DB dynamiques (Vault Database engine) — profil `vaultdb`, comptes PostgreSQL éphémères (`make up-vaultdb`)
 
 ## CI/CD & exploitation
 - ✔ Pipeline DevSecOps : SAST (CodeQL), SCA (Trivy), secret-scan (Gitleaks), image-scan
