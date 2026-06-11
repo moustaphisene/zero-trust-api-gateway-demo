@@ -19,7 +19,7 @@ Chaque thème couvert est relié au(x) fichier(s) qui l'implémente(nt) dans la 
 | Zero Trust | **Zero Trust** | Deny-by-default + re-validation JWT par chaque service + suppression des en-têtes X-* clients ; voir `docs/ZERO-TRUST-MTLS.md` |
 | Secrets | **Gestion des secrets — HashiCorp Vault** | `infra/vault/bootstrap.sh` (clé AES servie par Vault) + **credentials PostgreSQL dynamiques** (`infra/vault/configure-db-engine.sh`, profil `vaultdb`, `docs/VAULT-DYNAMIC-DB.md`) |
 | Chiffrement | **Chiffrement au repos (AES-256-GCM)** | `tender-service/.../crypto/AesEncryptionService.java` + `AesAttributeConverter.java` |
-| DevSecOps | **Pipeline CI/CD sécurisé** | `.github/workflows/ci-secure.yml` (build, SAST CodeQL, SCA Trivy, secret-scan Gitleaks, image-scan) |
+| DevSecOps | **Pipeline CI/CD sécurisé** | `.github/workflows/ci-secure.yml` (build, SAST CodeQL, SCA Trivy, secret-scan Gitleaks, image-scan, **SBOM CycloneDX**, **signature cosign**) |
 | Observabilité | **Monitoring & observabilité de la sécurité** | `SecurityEventLogger` + `SecurityMetrics` (gateway & tender), `infra/prometheus/*`, `infra/grafana/*` |
 
 ## Démonstrations clés (via Postman)
