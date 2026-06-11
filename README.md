@@ -140,7 +140,9 @@ Voir **[docs/THEMES-MAPPING.md](docs/THEMES-MAPPING.md)** : chaque thème couver
 relié au fichier qui l'implémente. Voir aussi :
 - **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** — décisions d'architecture et flux ;
 - **[docs/ZERO-TRUST-MTLS.md](docs/ZERO-TRUST-MTLS.md)** — Zero Trust et activation du mTLS ;
-- **[docs/SECURITY-CHECKLIST.md](docs/SECURITY-CHECKLIST.md)** — check-list de sécurité.
+- **[docs/SECURITY-CHECKLIST.md](docs/SECURITY-CHECKLIST.md)** — check-list de sécurité ;
+- **[docs/COMPLIANCE.md](docs/COMPLIANCE.md)** — cartographie contrôles → ISO 27001 / RGPD / OWASP ;
+- **[docs/SUPPLY-CHAIN.md](docs/SUPPLY-CHAIN.md)** — SBOM, signature d'images, provenance.
 
 ---
 

@@ -58,5 +58,20 @@
                 </plugin>
             </plugins>
         </pluginManagement>
+        <plugins>
+            <!-- SBOM CycloneDX (supply-chain) : inventaire signable des composants.
+                 Exécution makeAggregateBom auto-liée à la phase 'package' ; le SBOM est
+                 embarqué dans le jar -> target/classes/META-INF/sbom/application.cdx.json -->
+            <plugin>
+                <groupId>org.cyclonedx</groupId>
+                <artifactId>cyclonedx-maven-plugin</artifactId>
+                <version>2.9.1</version>
+                <configuration>
+                    <projectType>application</projectType>
+                    <schemaVersion>1.5</schemaVersion>
+                    <outputFormat>json</outputFormat>
+                </configuration>
+            </plugin>
+        </plugins>
     </build>
 </project>

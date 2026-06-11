@@ -32,6 +32,8 @@
 
 ## CI/CD & exploitation
 - ✔ Pipeline DevSecOps : SAST (CodeQL), SCA (Trivy), secret-scan (Gitleaks), image-scan
+- ✔ Supply-chain : SBOM CycloneDX/Syft + signature & attestation cosign keyless (`docs/SUPPLY-CHAIN.md`)
+- ✔ Cartographie de conformité ISO 27001 / RGPD / OWASP (`docs/COMPLIANCE.md`)
 - ✔ Images Docker non-root
 - ✔ Observabilité : logs `SECURITY_AUDIT`, métriques Prometheus, alertes, dashboard Grafana
 - ✔ Sondes de santé (`/actuator/health`)
