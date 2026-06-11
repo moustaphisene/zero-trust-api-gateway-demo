@@ -43,3 +43,6 @@ infra/certs/*.p12
 infra/certs/*.jks
 infra/certs/*.pem
 infra/certs/*.key
+infra/certs/*.crt
+infra/certs/*.csr
+infra/certs/*.srl

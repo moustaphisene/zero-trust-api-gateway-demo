@@ -1,0 +1,20 @@
+# =====================================================================
+# Profil « mtls » du Gateway — TLS mutuel sortant vers les microservices
+# Le Gateway présente un certificat CLIENT et ne fait confiance qu'aux
+# serveurs dont le certificat est signé par la CA de la démo.
+# (L'entrée du Gateway reste en HTTP 8080 ; combiner avec le profil « https »
+#  pour chiffrer aussi le tronçon client → Gateway.)
+# Activation : SPRING_PROFILES_ACTIVE=mtls (+ montage de /certs et URIs https)
+# =====================================================================
+spring:
+  cloud:
+    gateway:
+      httpclient:
+        ssl:
+          # Certificat client présenté aux microservices (mTLS).
+          key-store: file:/certs/gateway-client.p12
+          key-store-password: ${MTLS_PASSWORD:changeit}
+          key-store-type: PKCS12
+          # CA de confiance pour valider le certificat serveur des microservices.
+          trusted-x509-certificates:
+            - /certs/ca.crt

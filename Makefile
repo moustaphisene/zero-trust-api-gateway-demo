@@ -41,6 +41,14 @@ up-https: certs ## Démarre le Gateway en HTTPS (8443) — nécessite le keystor
 	SPRING_PROFILES_ACTIVE=https $(COMPOSE) up -d --build
 	@echo "→ Gateway HTTPS : https://localhost:8443"
 
+mtls-certs: ## Génère la PKI mTLS (CA + certs serveur/client) dans infra/certs/
+	bash infra/certs/generate-mtls-certs.sh
+
+up-mtls: mtls-certs ## Démarre la stack avec mTLS Gateway ↔ microservices
+	$(COMPOSE) -f docker-compose.yml -f docker-compose.mtls.yml up -d --build
+	@echo "→ mTLS actif : Gateway appelle tender/user en https avec cert client"
+	@echo "→ Preuve : curl -k https://localhost:8081/api/tenders  ⇒ rejet TLS (cert client requis)"
+
 token-user: ## Récupère un access_token pour l'utilisateur 'user'
 	@curl -s -X POST http://localhost:8180/realms/api-realm/protocol/openid-connect/token \
 		-d grant_type=password -d client_id=api-gateway -d client_secret=gateway-secret-demo \
